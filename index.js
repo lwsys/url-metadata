@@ -1,6 +1,24 @@
 const extractCharset = require('./lib/extract-charset')
 const parse = require('./lib/parse')
 
+function timeout(ms, promise) {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error('TIMEOUT'))
+    }, ms)
+
+    promise
+      .then(value => {
+        clearTimeout(timer)
+        resolve(value)
+      })
+      .catch(reason => {
+        clearTimeout(timer)
+        reject(reason)
+      })
+  })
+}
+
 module.exports = function (url, options) {
   if (!options || typeof options !== 'object') options = {}
 
@@ -28,6 +46,7 @@ module.exports = function (url, options) {
   let destinationUrl = ''
   let contentType
   let charset
+  
 
   async function fetchData () {
     if (!url && opts.parseResponseObject) {
@@ -43,7 +62,10 @@ module.exports = function (url, options) {
         timeout: opts.timeout,
         redirect: 'follow'
       }
-      return await fetch(url, requestOpts)
+      if(opts.timeout !== undefined){
+        return await timeout(opts.timeout,fetch(url,requestOpts))
+      }
+      return await fetch(url,requestOpts)
     } else if (!url) {
       throw new Error('url parameter is missing')
     }

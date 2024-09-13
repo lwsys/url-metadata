@@ -20,7 +20,7 @@
   "scripts": {
     "lint": "standard",
     "format": "standard --fix",
-    "test": "jest --testPathIgnorePatterns=/test-debug/ && standard",
+    "test": "jest --watch --testPathIgnorePatterns=/test-debug/ && standard",
     "debug": "jest test-debug/debug.test.js",
     "prepare": "husky install"
   },

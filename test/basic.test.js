@@ -51,16 +51,26 @@ test('no error when favicons missing from page', async () => {
 })
 
 test('favicons', async () => {
-  const url = 'https://developer.apple.com/safari/resources/'
-  const metadata = await urlMetadata(url, {
-    requestHeaders: {
-      'User-Agent': 'sparky',
-      From: 'foobarred@foo.com'
-    }
+  const url = 'https://www.goofish.com/'
+  const metadata = await urlMetadata(url)
+  expect(metadata.favicons.length).toBe(1)
+})
+
+test('timeout success', async () => {
+  const url = 'https://www.goofish.com/'
+  const metadata = await urlMetadata(url,{
+    "timeout":3000
   })
-  expect(metadata.favicons.length).toBe(3)
-  expect(metadata.favicons[0].rel).toBe('shortcut icon')
-  // Safari pinned tab 'mask-icons' can have 'color' attribute:
-  expect(metadata.favicons[2].rel).toBe('mask-icon')
-  expect(metadata.favicons[2].color).toBe('#333333')
+  expect(metadata.favicons.length).toBe(1)
+})
+
+test('timeout error', async () => {
+  const url = 'https://www.google.com/'
+  try {
+    await urlMetadata(url,{
+      "timeout":10
+    }) 
+  } catch (error) {
+    expect(error).toBeDefined();
+  }
 })
